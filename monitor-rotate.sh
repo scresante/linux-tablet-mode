@@ -35,10 +35,9 @@ LASTORIENT='unset'
 echo 'monitoring for screen rotation...'
 while [ -d /proc/$PID ] ; do
     sleep 0.05
-    #if read line <$PIPE; then
-    if read line <$STATE; then
-    #while read line ; do
-        line=$(echo $line | sed -E  '/orient/!d;s/.*orient.*: ([a-z\-]*)\)??/\1/;' )
+    # meh
+    while inotifywait -q -e modify $STATE; do
+        line=$(tail -n1 $STATE | sed -E  '/orient/!d;s/.*orient.*: ([a-z\-]*)\)??/\1/;' )
         # read a line from the pipe, set var if not whitespace
         [[ $line == *[^[:space:]]* ]] || continue
         ORIENT=$line
@@ -56,7 +55,6 @@ while [ -d /proc/$PID ] ; do
               /opt/rotate-screen.sh -l;;
             esac
         fi
-    fi
-    #done  <(inotifywait -qm -e modify $PIPE) 
+    done
 done
 echo exiting
