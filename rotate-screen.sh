@@ -8,12 +8,13 @@
 # find your Touchscreen and Touchpad device with `xinput`
 TouchscreenDevice='ELAN Touchscreen'
 TouchpadDevice='SynPS/2 Synaptics TouchPad'
+KeyboardDevice='AT Translated Set 2 keyboard'
 
 if [ "$1" = "--help"  ] || [ "$1" = "-h"  ] ; then
 echo 'Usage: rotate-screen.sh [OPTION]'
 echo
 echo 'This script rotates the screen and touchscreen input 90 degrees each time it is called,' 
-echo 'also disables the touchpad, and enables the virtual keyboard accordingly'
+echo 'also disables the touchpad & keyboard, and enables the virtual keyboard accordingly'
 echo
 echo Usage:
 echo ' -h --help display this help'
@@ -57,30 +58,29 @@ then
   xrandr -o inverted
   xinput set-prop "$TouchscreenDevice" 'Coordinate Transformation Matrix' $inverted
   xinput disable "$TouchpadDevice"
-  # Remove hashtag below if you want pop-up the virtual keyboard  
+  xinput disable "$KeyboardDevice"
   [[  `pgrep onboard` ]] || onboard &
-  #xmodmap /opt/xmodmap.disable
 elif [ "$1" == "-l" ]
 then
   echo "90° to the left"
   xrandr -o left
   xinput set-prop "$TouchscreenDevice" 'Coordinate Transformation Matrix' $left
   xinput disable "$TouchpadDevice"
+  xinput disable "$KeyboardDevice"
   [[  `pgrep onboard` ]] || onboard &
-  #xmodmap /opt/xmodmap.disable
 elif [ "$1" == "-r" ]
 then
   echo "90° right up"
   xrandr -o right
   xinput set-prop "$TouchscreenDevice" 'Coordinate Transformation Matrix' $right
   xinput disable "$TouchpadDevice"
+  xinput disable "$KeyboardDevice"
   [[  `pgrep onboard` ]] || onboard &
-  #xmodmap /opt/xmodmap.disable
 else
   echo "Back to normal"
   xrandr -o normal
   xinput set-prop "$TouchscreenDevice" 'Coordinate Transformation Matrix' $normal
   xinput enable "$TouchpadDevice"
+  xinput enable "$KeyboardDevice"
   killall -q onboard
-  #xmodmap /opt/xmodmap.enable
 fi
