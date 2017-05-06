@@ -10,7 +10,6 @@ TouchscreenDevice='ELAN Touchscreen'
 TouchpadDevice='SynPS/2 Synaptics TouchPad'
 KeyboardDevice='AT Translated Set 2 keyboard'
 
-
 command -v monitor-sensor >/dev/null 2>&1 || { echo >&2 "I require monitor-sensor but it's not installed.  Aborting."; exit 1; }
 command -v onboard >/dev/null 2>&1 || { echo >&2 "I require onboard but it's not installed.  Aborting."; exit 1; }
 command -v xmodmap >/dev/null 2>&1 || { echo >&2 "I require xmodmap but it's not installed.  Aborting."; exit 1; }
@@ -53,6 +52,7 @@ rotatescreen() {
     xinput set-prop "$TouchscreenDevice" 'Coordinate Transformation Matrix' $inverted
     xinput disable "$TouchpadDevice"
     xinput disable "$KeyboardDevice"
+    # if onboard isn't running, start it
     [[  `pgrep onboard` ]] || onboard &
   elif [ "$1" == "-l" ]; then
     echo "90° to the left"
