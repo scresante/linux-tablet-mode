@@ -10,19 +10,6 @@ TouchscreenDevice='ELAN Touchscreen'
 TouchpadDevice='SynPS/2 Synaptics TouchPad'
 KeyboardDevice='AT Translated Set 2 keyboard'
 
-if [ "$1" = "--help"  ] || [ "$1" = "-h"  ] ; then
-echo 'Usage: rotate-screen.sh [OPTION]'
-echo
-echo 'This script rotates the screen and touchscreen input 90 degrees each time it is called,' 
-echo 'also disables the touchpad & keyboard, and enables the virtual keyboard accordingly'
-echo
-echo Usage:
-echo ' -h --help display this help'
-echo ' -j (just horizontal) rotates the screen and touchscreen input only 180 degrees'
-echo ' -n always rotates the screen back to normal'
-exit 0
-fi
-
 touchpadEnabled=$(xinput --list-props "$TouchpadDevice" | awk '/Device Enabled/{print $NF}')
 screenMatrix=$(xinput --list-props "$TouchscreenDevice" | awk '/Coordinate Transformation Matrix/{print $5$6$7$8$9$10$11$12$NF}')
 
