@@ -88,8 +88,8 @@ monitor-sensor >> $LOG &
 STATE=$LOG
 
 PID=$!
-# kill monitor-sensor if this script exits
-trap "[ ! -e /proc/$PID ] || kill $PID" SIGHUP SIGINT SIGQUIT SIGTERM SIGPIPE
+# kill monitor-sensor and rm log if this script exits
+trap "[ ! -e /proc/$PID ] || kill $PID && rm $LOG" SIGHUP SIGINT SIGQUIT SIGTERM SIGPIPE
 LASTORIENT='unset'
 
 #MAIN LOOP
@@ -118,4 +118,3 @@ while [ -d /proc/$PID ] ; do
         fi
     done
 done
-echo exiting
