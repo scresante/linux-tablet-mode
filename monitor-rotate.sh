@@ -55,21 +55,21 @@ rotatescreen() {
     xinput disable "$TouchpadDevice"
     xinput disable "$KeyboardDevice"
     # if onboard isn't running, start it
-    [[  `pgrep onboard` ]] || onboard &
+    [[  `pgrep onboard` ]] || onboard 2>/dev/null &
   elif [ "$1" == "-l" ]; then
     echo "90° to the left"
     xrandr -o left
     xinput set-prop "$TouchscreenDevice" 'Coordinate Transformation Matrix' $left
     xinput disable "$TouchpadDevice"
     xinput disable "$KeyboardDevice"
-    [[  `pgrep onboard` ]] || onboard &
+    [[  `pgrep onboard` ]] || onboard 2>/dev/null &
   elif [ "$1" == "-r" ]; then
     echo "90° right up"
     xrandr -o right
     xinput set-prop "$TouchscreenDevice" 'Coordinate Transformation Matrix' $right
     xinput disable "$TouchpadDevice"
     xinput disable "$KeyboardDevice"
-    [[  `pgrep onboard` ]] || onboard &
+    [[  `pgrep onboard` ]] || onboard 2>/dev/null &
   elif [ "$1" == "-n" ]; then
     echo "Back to normal"
     xrandr -o normal
@@ -107,7 +107,7 @@ LASTORIENT='unset'
 echo 'monitoring for screen rotation...'
 while [ -d /proc/$PID ] ; do
     sleep 0.05
-    while inotifywait -q -e modify $STATE; do
+    while inotifywait -qq -e modify $STATE; do
         line=$(tail -n1 $STATE | sed -E  '/orient/!d;s/.*orient.*: ([a-z\-]*)\)??/\1/;' )
         # read a line from the pipe, set var if not whitespace
         [[ $line == *[^[:space:]]* ]] || continue

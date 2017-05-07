@@ -1,4 +1,8 @@
 #!/bin/sh
+# this is a script to control the brightness of a laptop screen while the
+# keyboard is disabled. intended to be used with monitor-rotate.sh and onboard
+# uses xrandr for extra backlight boost in very sunny situations
+
 BL=/sys/class/backlight/intel_backlight
 actual=$(cat $BL/actual_brightness)
 if [ -z $1 ]; then
