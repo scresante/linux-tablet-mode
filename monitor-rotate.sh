@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Auto rotate screen based on device orientation
 
 # Screen orientation and launcher location is set based upon accelerometer position
@@ -10,10 +10,8 @@ TouchscreenDevice='ELAN Touchscreen'
 TouchpadDevice='SynPS/2 Synaptics TouchPad'
 KeyboardDevice='AT Translated Set 2 keyboard'
 
-### dependencies
-command -v monitor-sensor >/dev/null 2>&1 || { echo >&2 "I require monitor-sensor but it's not installed.  Aborting."; exit 1; }
-command -v onboard >/dev/null 2>&1 || { echo >&2 "I require onboard but it's not installed.  Aborting."; exit 1; }
-command -v xmodmap >/dev/null 2>&1 || { echo >&2 "I require xmodmap but it's not installed.  Aborting."; exit 1; }
+### arguments
+if [ "$1" == '-nosd' ]; then NOSD=1; fi
 
 ### functions
 rotatescreen() {
@@ -80,11 +78,17 @@ rotatescreen() {
   fi
 }
 
+### dependencies
+# make a binary dependency list, loop it - popout with opts
+command -v monitor-sensor >/dev/null 2>&1 || { echo >&2 "I require monitor-sensor but it's not installed.  Aborting."; exit 1; }
+command -v onboard >/dev/null 2>&1 || { echo >&2 "I require onboard but it's not installed.  Aborting."; exit 1; }
+command -v xmodmap >/dev/null 2>&1 || { echo >&2 "I require xmodmap but it's not installed.  Aborting."; exit 1; }
+
 ### main script
 
 # check for running instance exit if exists
 myname=$(basename $0)
-runningPID=$(ps -ef | grep "/bin/sh.*$myname" | grep -v "grep \| $$" | awk '{print $2}')
+runningPID=$(ps -ef | grep ".*bash.*$myname" | grep -v "grep \| $$" | awk '{print $2}')
 if [[ $runningPID != "" ]] ; then
     echo $myname is already running with PID $runningPID
     exit
