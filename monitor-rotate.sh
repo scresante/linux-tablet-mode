@@ -4,16 +4,18 @@
 # Screen orientation and launcher location is set based upon accelerometer position
 # This script should be added to startup applications for the user
 
-#### configuration
+### configuration
 # find your Touchscreen and Touchpad device with `xinput`
 TouchscreenDevice='ELAN Touchscreen'
 TouchpadDevice='SynPS/2 Synaptics TouchPad'
 KeyboardDevice='AT Translated Set 2 keyboard'
 
+### dependencies
 command -v monitor-sensor >/dev/null 2>&1 || { echo >&2 "I require monitor-sensor but it's not installed.  Aborting."; exit 1; }
 command -v onboard >/dev/null 2>&1 || { echo >&2 "I require onboard but it's not installed.  Aborting."; exit 1; }
 command -v xmodmap >/dev/null 2>&1 || { echo >&2 "I require xmodmap but it's not installed.  Aborting."; exit 1; }
 
+### functions
 rotatescreen() {
   # Contributors: Ruben Barkow: https://gist.github.com/rubo77/daa262e0229f6e398766
 
@@ -78,6 +80,16 @@ rotatescreen() {
   fi
 }
 
+### main script
+
+# check for running instance exit if exists
+myname=$(basename $0)
+runningPID=$(ps -ef | grep "/bin/sh.*$myname" | grep -v "grep \| $$" | awk '{print $2}')
+if [[ $runningPID != "" ]] ; then
+    echo $myname is already running with PID $runningPID
+    exit
+fi
+
 #cleanup last run
 LOG=/tmp/sensor.log
 : > $LOG
@@ -92,11 +104,9 @@ PID=$!
 trap "[ ! -e /proc/$PID ] || kill $PID && rm $LOG" SIGHUP SIGINT SIGQUIT SIGTERM SIGPIPE
 LASTORIENT='unset'
 
-#MAIN LOOP
 echo 'monitoring for screen rotation...'
 while [ -d /proc/$PID ] ; do
     sleep 0.05
-    # meh
     while inotifywait -q -e modify $STATE; do
         line=$(tail -n1 $STATE | sed -E  '/orient/!d;s/.*orient.*: ([a-z\-]*)\)??/\1/;' )
         # read a line from the pipe, set var if not whitespace
