@@ -11,7 +11,7 @@ TouchpadDevice='SynPS/2 Synaptics TouchPad'
 KeyboardDevice='AT Translated Set 2 keyboard'
 
 ### arguments
-if [ "$1" == '-nosd' ]; then NOSD=1; fi
+if [ "$1" == '-nosd' ]; then NOSD="true" ; fi
 
 ### functions
 rotatescreen() {
@@ -52,22 +52,28 @@ rotatescreen() {
     xinput set-prop "$TouchscreenDevice" 'Coordinate Transformation Matrix' $inverted
     xinput disable "$TouchpadDevice"
     xinput disable "$KeyboardDevice"
-    # if onboard isn't running, start it
-    [[  `pgrep onboard` ]] || onboard 2>/dev/null &
+    # if onboard isn't running and NOSD != true, start it
+    if [[ "$NOSD" != "true" ]]; then
+        [[ `pgrep onboard` ]] || onboard 2>/dev/null &
+    fi
   elif [ "$1" == "-l" ]; then
     echo "90° to the left"
     xrandr -o left
     xinput set-prop "$TouchscreenDevice" 'Coordinate Transformation Matrix' $left
     xinput disable "$TouchpadDevice"
     xinput disable "$KeyboardDevice"
-    [[  `pgrep onboard` ]] || onboard 2>/dev/null &
+    if [[ "$NOSD" != "true" ]]; then
+        [[ `pgrep onboard` ]] || onboard 2>/dev/null &
+    fi
   elif [ "$1" == "-r" ]; then
     echo "90° right up"
     xrandr -o right
     xinput set-prop "$TouchscreenDevice" 'Coordinate Transformation Matrix' $right
     xinput disable "$TouchpadDevice"
     xinput disable "$KeyboardDevice"
-    [[  `pgrep onboard` ]] || onboard 2>/dev/null &
+    if [[ "$NOSD" != "true" ]]; then
+        [[ `pgrep onboard` ]] || onboard 2>/dev/null &
+    fi
   elif [ "$1" == "-n" ]; then
     echo "Back to normal"
     xrandr -o normal
@@ -79,10 +85,9 @@ rotatescreen() {
 }
 
 ### dependencies
-# make a binary dependency list, loop it - popout with opts
-command -v monitor-sensor >/dev/null 2>&1 || { echo >&2 "I require monitor-sensor but it's not installed.  Aborting."; exit 1; }
-command -v onboard >/dev/null 2>&1 || { echo >&2 "I require onboard but it's not installed.  Aborting."; exit 1; }
-command -v xmodmap >/dev/null 2>&1 || { echo >&2 "I require xmodmap but it's not installed.  Aborting."; exit 1; }
+( command -v monitor-sensor >/dev/null 2>&1 ) || { echo >&2 "I require monitor-sensor but it's not installed.  Aborting."; exit 1; }
+# transparently disable onboard support if it's not installed
+( command -v onboard >/dev/null 2>&1 ) || { echo >&2 "Not using onboard keyboard"; NOSD="true"; }
 
 ### main script
 
