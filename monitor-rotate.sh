@@ -87,6 +87,7 @@ rotatescreen() {
 ### dependencies
 ( command -v monitor-sensor >/dev/null 2>&1 ) || { echo >&2 "$0 requires monitor-sensor but it's not installed.  Please install iio-sensor-proxy (https://github.com/hadess/iio-sensor-proxy)."; exit 1; }
 ( command -v xrandr >/dev/null 2>&1 ) || { echo >&2 "$0 requires xrandr but it's not installed. Aborting."; exit 1; }
+( command -v inotifywait >/dev/null 2>&1 ) || { echo >&2 "$0 requires inotifywait but it's not installed. Please install inotify-tools. Aborting."; exit 1; }
 # transparently disable onboard support if it's not installed
 ( command -v onboard >/dev/null 2>&1 ) || { echo >&2 "Not using onboard keyboard"; NOSD="true"; }
 
