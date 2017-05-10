@@ -1,17 +1,20 @@
 # linux-tablet-mode
 ===
 
+*INSTALLATION*
+
+download and run monitor-rotate.sh
+
 *USAGE*
 
-install monitor-rotate.sh to your PATH and run it
-to disable the onboard on-screen keyboard functionality pass in -nosd
+To manually disable onboard OSD keyboard from launching, pass in -nosd
 
 *DEPENDENCIES*
 
 * https://github.com/hadess/iio-sensor-proxy
 * xrandr
 * inotifywait
-* onboard (OSD keyboard)
+* onboard (optional)
 
 
 *CREDITS*
