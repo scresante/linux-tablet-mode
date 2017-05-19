@@ -4,6 +4,8 @@
 # Screen orientation and launcher location is set based upon accelerometer position
 # This script should be added to startup applications for the user
 
+if [ -n "${DEBUG+set}" ]; then echo debug on; DEBUG=1; fi
+
 ### configuration
 # find your Touchscreen and Touchpad device with `xinput`
 TouchscreenDevice='ELAN Touchscreen'
@@ -118,8 +120,9 @@ LASTORIENT='unset'
 echo 'monitoring for screen rotation...'
 while [ -d /proc/$PID ] ; do
     sleep 0.05
-    while inotifywait -qq -e modify $STATE; do
+    while inotifywait ${DEBUG+-qq} -e modify $STATE; do
         line=$(tail -n1 $STATE | sed -E  '/orient/!d;s/.*orient.*: ([a-z\-]*)\)??/\1/;' )
+        [[ $DEBUG ]] && echo $line
         # read a line from the pipe, set var if not whitespace
         [[ $line == *[^[:space:]]* ]] || continue
         ORIENT=$line
