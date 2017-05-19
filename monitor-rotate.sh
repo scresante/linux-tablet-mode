@@ -116,29 +116,26 @@ LASTORIENT='unset'
 echo 'monitoring for screen rotation...'
 while read -r; do
     line=$(echo "$REPLY" | sed -E  '/orient/!d;s/.*orient.*: ([a-z\-]*)\)??/\1/;' )
-        #line=$(tail -n1 $LOG | sed -E  '/orient/!d;s/.*orient.*: ([a-z\-]*)\)??/\1/;' )
-        #line=$(sed -E  '/orient/!d;s/.*orient.*: ([a-z\-]*)\)??/\1/;' $LOG )
-        #[[ $DEBUG ]] && ( echo 'tail': `tail -n1 $LOG` ; echo '$line': $line ;)
-        # read a line from the pipe, set var if not whitespace
-        [[ $line == *[^[:space:]]* ]] ||  continue
-        ORIENT=$line
-        if [[ "$ORIENT" != "$LASTORIENT" ]]; then
-            echo "$LASTORIENT > $ORIENT"
-            LASTORIENT=$ORIENT
-            # Set the actions to be taken for each possible orientation
-            case "$ORIENT" in
-            normal)
-              #rotatescreen -n;;
-              if [ $DEBUG ]; then echo "normal" ;else rotatescreen -n; fi ;;
-            bottom-up)
-              if [ $DEBUG ]; then echo "up" ;else rotatescreen -u; fi ;;
-              #rotatescreen -u;;
-            right-up)
-              if [ $DEBUG ]; then echo "right" ;else rotatescreen -r; fi ;;
-              #rotatescreen -r;;
-            left-up)
-              if [ $DEBUG ]; then echo "left" ;else rotatescreen -l; fi ;;
-              #rotatescreen -l;;
-            esac
-        fi
-    done < $LOG
+    # read a line from the pipe, set var if not whitespace
+    [[ $line == *[^[:space:]]* ]] ||  continue
+    ORIENT=$line
+    if [[ "$ORIENT" != "$LASTORIENT" ]]; then
+        echo "$LASTORIENT > $ORIENT"
+        LASTORIENT=$ORIENT
+        # Set the actions to be taken for each possible orientation
+        case "$ORIENT" in
+        normal)
+          #rotatescreen -n;;
+          if [ $DEBUG ]; then echo "normal" ;else rotatescreen -n; fi ;;
+        bottom-up)
+          if [ $DEBUG ]; then echo "up" ;else rotatescreen -u; fi ;;
+          #rotatescreen -u;;
+        right-up)
+          if [ $DEBUG ]; then echo "right" ;else rotatescreen -r; fi ;;
+          #rotatescreen -r;;
+        left-up)
+          if [ $DEBUG ]; then echo "left" ;else rotatescreen -l; fi ;;
+          #rotatescreen -l;;
+        esac
+    fi
+done < $LOG
