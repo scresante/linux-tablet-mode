@@ -89,7 +89,6 @@ rotatescreen() {
 ### dependencies
 ( command -v monitor-sensor >/dev/null 2>&1 ) || { echo >&2 "$0 requires monitor-sensor but it's not installed.  Please install iio-sensor-proxy (https://github.com/hadess/iio-sensor-proxy)."; exit 1; }
 ( command -v xrandr >/dev/null 2>&1 ) || { echo >&2 "$0 requires xrandr but it's not installed. Aborting."; exit 1; }
-( command -v inotifywait >/dev/null 2>&1 ) || { echo >&2 "$0 requires inotifywait but it's not installed. Please install inotify-tools. Aborting."; exit 1; }
 # transparently disable onboard support if it's not installed
 ( command -v onboard >/dev/null 2>&1 ) || { echo >&2 "Not using onboard keyboard"; NOSD="true"; }
 
@@ -103,42 +102,43 @@ if [[ $runningPID != "" ]] ; then
     exit
 fi
 
-#cleanup last run
-LOG=/tmp/sensor.log
-: > $LOG
 killall -q -v monitor-sensor
 
-# Launch monitor-sensor and output
-monitor-sensor >> $LOG &
-STATE=$LOG
+LOG=/tmp/sensor.log
+mkfifo $LOG
+monitor-sensor > $LOG &
 
 PID=$!
 # kill monitor-sensor and rm log if this script exits
-trap "[ ! -e /proc/$PID ] || kill $PID && rm $LOG" SIGHUP SIGINT SIGQUIT SIGTERM SIGPIPE
+trap "[ ! -e /proc/$PID ] || kill $PID && rm -v $LOG" SIGHUP SIGINT SIGQUIT SIGTERM SIGPIPE
 LASTORIENT='unset'
 
 echo 'monitoring for screen rotation...'
-while [ -d /proc/$PID ] ; do
-    sleep 0.05
-    while inotifywait ${DEBUG+-qq} -e modify $STATE; do
-        line=$(tail -n1 $STATE | sed -E  '/orient/!d;s/.*orient.*: ([a-z\-]*)\)??/\1/;' )
-        [[ $DEBUG ]] && echo $line
+while read -r; do
+    line=$(echo "$REPLY" | sed -E  '/orient/!d;s/.*orient.*: ([a-z\-]*)\)??/\1/;' )
+        #line=$(tail -n1 $LOG | sed -E  '/orient/!d;s/.*orient.*: ([a-z\-]*)\)??/\1/;' )
+        #line=$(sed -E  '/orient/!d;s/.*orient.*: ([a-z\-]*)\)??/\1/;' $LOG )
+        #[[ $DEBUG ]] && ( echo 'tail': `tail -n1 $LOG` ; echo '$line': $line ;)
         # read a line from the pipe, set var if not whitespace
-        [[ $line == *[^[:space:]]* ]] || continue
+        [[ $line == *[^[:space:]]* ]] ||  continue
         ORIENT=$line
         if [[ "$ORIENT" != "$LASTORIENT" ]]; then
-            LASTORIENT=ORIENT
+            echo "$LASTORIENT > $ORIENT"
+            LASTORIENT=$ORIENT
             # Set the actions to be taken for each possible orientation
             case "$ORIENT" in
             normal)
-              rotatescreen -n;;
+              #rotatescreen -n;;
+              if [ $DEBUG ]; then echo "normal" ;else rotatescreen -n; fi ;;
             bottom-up)
-              rotatescreen -u;;
+              if [ $DEBUG ]; then echo "up" ;else rotatescreen -u; fi ;;
+              #rotatescreen -u;;
             right-up)
-              rotatescreen -r;;
+              if [ $DEBUG ]; then echo "right" ;else rotatescreen -r; fi ;;
+              #rotatescreen -r;;
             left-up)
-              rotatescreen -l;;
+              if [ $DEBUG ]; then echo "left" ;else rotatescreen -l; fi ;;
+              #rotatescreen -l;;
             esac
         fi
-    done
-done
+    done < $LOG

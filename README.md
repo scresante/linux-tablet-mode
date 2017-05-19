@@ -13,7 +13,6 @@ To manually disable onboard OSD keyboard from launching, pass in -nosd
 
 * https://github.com/hadess/iio-sensor-proxy
 * xrandr
-* inotifywait
 * onboard (optional)
 
 
